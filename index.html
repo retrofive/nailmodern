@@ -160,6 +160,8 @@
       padding: 4px;
       background: none;
       border: none;
+      z-index: 301;
+      position: relative;
     }
 
     .nav-hamburger span {
@@ -167,10 +169,49 @@
       width: 24px;
       height: 1.5px;
       background: var(--white);
-      transition: background .3s;
+      transition: background .3s, transform .3s, opacity .3s;
     }
 
     nav.scrolled .nav-hamburger span { background: var(--deep); }
+
+    /* Mobile overlay */
+    .nav-mobile-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--warm);
+      z-index: 299;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5rem;
+    }
+
+    .nav-mobile-overlay.open { display: flex; }
+
+    .nav-mobile-overlay a {
+      font-family: var(--ff-serif);
+      font-size: 2rem;
+      font-weight: var(--fw-light);
+      color: rgba(255,255,255,.85);
+      letter-spacing: .04em;
+      transition: color .3s;
+    }
+
+    .nav-mobile-overlay a:hover { color: var(--gold-lt); }
+
+    .nav-mobile-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,.6);
+      font-size: 2rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: .5rem;
+    }
 
     /* ── Hero ──────────────────────────────────────── */
     #hero {
@@ -1087,7 +1128,7 @@
     }
 
     @media (max-width: 768px) {
-      .nav-links, .nav-cta { display: none; }
+      .nav-links, .nav-cta { display: none !important; }
       .nav-hamburger { display: flex; }
       .services-grid { grid-template-columns: 1fr 1fr; }
       .reviews-grid  { grid-template-columns: 1fr; }
@@ -1147,6 +1188,16 @@
       </button>
     </div>
   </nav>
+
+  <!-- Mobile nav overlay (separate from the nav element) -->
+  <div class="nav-mobile-overlay" id="mobileNav">
+    <button class="nav-mobile-close" id="mobileClose" aria-label="Close menu">&#x2715;</button>
+    <a href="#about"    onclick="closeMobileNav()">About</a>
+    <a href="#services" onclick="closeMobileNav()">Services</a>
+    <a href="#reviews"  onclick="closeMobileNav()">Reviews</a>
+    <a href="#contact"  onclick="closeMobileNav()">Visit Us</a>
+    <a href="tel:+12393898700" onclick="closeMobileNav()" style="font-size:1.1rem;color:var(--gold-lt)">(239) 389-8700</a>
+  </div>
 
   <!-- ── Hero ───────────────────────────────────────── -->
   <section id="hero">
@@ -1678,28 +1729,23 @@
     }, { threshold: 0.12 });
     fadeEls.forEach(el => io.observe(el));
 
-    // Mobile nav toggle (basic)
-    const hamburger = document.querySelector('.nav-hamburger');
-    const navLinks  = document.querySelector('.nav-links');
-    const navCta    = document.querySelector('.nav-cta');
-    let mobileOpen  = false;
+    // Mobile nav toggle
+    const hamburger  = document.querySelector('.nav-hamburger');
+    const mobileNav  = document.getElementById('mobileNav');
+    const mobileClose = document.getElementById('mobileClose');
 
-    hamburger.addEventListener('click', () => {
-      mobileOpen = !mobileOpen;
-      if (mobileOpen) {
-        navLinks.style.cssText = 'display:flex; flex-direction:column; position:fixed; top:0; left:0; right:0; bottom:0; background:var(--warm); align-items:center; justify-content:center; gap:2.5rem; z-index:200';
-        navLinks.querySelectorAll('a').forEach(a => { a.style.color = 'rgba(255,255,255,.85)'; a.style.fontSize = '1.1rem'; });
-        hamburger.style.zIndex = '201';
-        hamburger.style.position = 'relative';
-      } else {
-        navLinks.removeAttribute('style');
-        navLinks.querySelectorAll('a').forEach(a => a.removeAttribute('style'));
-      }
-    });
+    function openMobileNav() {
+      mobileNav.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
 
-    navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-      if (mobileOpen) { mobileOpen = false; navLinks.removeAttribute('style'); navLinks.querySelectorAll('a').forEach(l => l.removeAttribute('style')); }
-    }));
+    function closeMobileNav() {
+      mobileNav.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    hamburger.addEventListener('click', openMobileNav);
+    mobileClose.addEventListener('click', closeMobileNav);
   </script>
 </body>
 </html>
